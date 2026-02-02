@@ -1,0 +1,330 @@
+/**
+ * Swagger to Zod - Side-by-Side Schema Display Styles
+ * Styled to match Swagger UI's design language
+ */
+
+/* Side-by-side wrapper - using CSS Grid for better overflow control */
+/* Applied directly to example containers (.model-example, .example-value, etc.) */
+.swagger-zod-schema-wrapper {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  clear: both;
+  /* Ensure wrapper doesn't overflow parent container */
+  min-width: 0;
+  overflow: visible;
+  /* Prevent overflow beyond parent container */
+  contain: layout style;
+  /* Ensure wrapper fits within parent */
+  position: relative;
+  /* Ensure both grid items have same height */
+  align-items: stretch;
+}
+
+/* Ensure wrapper fits within Swagger UI containers */
+.response-col_description .swagger-zod-schema-wrapper,
+.example-value + .swagger-zod-schema-wrapper,
+.model-example + .swagger-zod-schema-wrapper {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Ensure parent containers properly contain the wrapper */
+.response-col_description,
+.example-value,
+.model-example {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Prevent wrapper from breaking out of Swagger UI containers */
+.opblock-body,
+.responses-wrapper,
+.response-wrapper {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Swagger example wrapper (left side) */
+.swagger-zod-example-wrapper {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* Prevent overflow */
+  position: relative;
+  /* Grid column constraints */
+  grid-column: 1;
+  /* Ensure column doesn't exceed grid cell */
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Match height of schema side */
+  height: 100%;
+}
+
+/* Ensure example pre block fits properly */
+.swagger-zod-example-wrapper > pre {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: auto;
+  margin: 0;
+  flex: 1;
+}
+
+/* Ensure example content fits properly */
+.swagger-zod-example-wrapper > * {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Prevent horizontal overflow */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Zod schema side (right) */
+.swagger-zod-zod-side {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  /* Prevent overflow */
+  position: relative;
+  /* Grid column constraints */
+  grid-column: 2;
+  /* Ensure column doesn't exceed grid cell */
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Match height of example side */
+  height: 100%;
+  /* Ensure copy button positioning works */
+  padding-bottom: 0;
+}
+
+/* Copy button positioned absolutely in bottom right corner */
+.swagger-zod-copy-btn-absolute {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(51, 51, 51, 0.9);
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.swagger-zod-copy-btn-absolute:hover {
+  background: #4990e2;
+  border-color: #4990e2;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(73, 144, 226, 0.4);
+}
+
+.swagger-zod-copy-btn-absolute:active {
+  transform: translateY(0);
+}
+
+.swagger-zod-copy-btn-absolute:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(73, 144, 226, 0.5);
+}
+
+.swagger-zod-copy-btn-absolute.success {
+  background: #49cc90;
+  border-color: #49cc90;
+  color: #fff;
+}
+
+.swagger-zod-copy-btn-absolute svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Zod code block - match Swagger's example styling */
+.swagger-zod-code {
+  margin: 0;
+  /* Use Swagger's example styles - padding, background, color are set inline */
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+  overflow-y: auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  /* Ensure horizontal scrolling works */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent overflow beyond container */
+  position: relative;
+  /* Allow Swagger's microlight syntax highlighting to work */
+  white-space: pre;
+  /* Match height of example block */
+  min-height: 100%;
+  flex: 1;
+}
+
+.swagger-zod-code code {
+  display: block;
+  color: inherit;
+  background: transparent;
+  padding: 0;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  white-space: pre;
+  /* Allow horizontal scroll but prevent overflow */
+  word-wrap: normal;
+  overflow-wrap: normal;
+  /* Prevent code from overflowing container */
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* Ensure long lines scroll properly */
+  overflow-x: auto;
+  overflow-y: visible;
+  /* Ensure code doesn't break container */
+  width: 100%;
+  /* Match Swagger's code styling */
+  line-height: 1.5;
+}
+
+/* Toast notification */
+.swagger-zod-toast {
+  position: fixed;
+  z-index: 10000;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transform: translate(-50%, -100%) scale(0.95);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.swagger-zod-toast.visible {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}
+
+.swagger-zod-toast.success {
+  background: #49cc90;
+  color: #fff;
+}
+
+.swagger-zod-toast.error {
+  background: #f93e3e;
+  color: #fff;
+}
+
+/* Dark mode support - detect Swagger UI's dark theme */
+.swagger-ui.swagger-ui--dark .swagger-zod-zod-side {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.swagger-ui.swagger-ui--dark .swagger-zod-copy-btn-absolute {
+  background: rgba(30, 30, 30, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.swagger-ui.swagger-ui--dark .swagger-zod-copy-btn-absolute:hover {
+  background: #4990e2;
+  border-color: #4990e2;
+}
+
+.swagger-ui.swagger-ui--dark .swagger-zod-code {
+  background: rgb(51, 51, 51) !important;
+  color: white !important;
+}
+
+/* Alternative dark theme detection */
+@media (prefers-color-scheme: dark) {
+  .swagger-ui .swagger-zod-zod-side {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .swagger-ui .swagger-zod-copy-btn-absolute {
+    background: rgba(30, 30, 30, 0.95);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
+  .swagger-ui .swagger-zod-copy-btn-absolute:hover {
+    background: #4990e2;
+    border-color: #4990e2;
+    color: #fff;
+  }
+
+  .swagger-ui .swagger-zod-code {
+    background: rgb(51, 51, 51) !important;
+    color: white !important;
+  }
+}
+
+/* Responsive layout for smaller screens */
+@media (max-width: 1200px) {
+  .swagger-zod-schema-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .swagger-zod-swagger-side {
+    grid-column: 1;
+  }
+
+  .swagger-zod-zod-side {
+    grid-column: 1;
+  }
+}
+
+/* Animation for schema appearance */
+@keyframes swagger-zod-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.swagger-zod-schema-wrapper {
+  animation: swagger-zod-fade-in 0.3s ease;
+}

@@ -1,0 +1,48 @@
+{
+  "name": "swagger-to-zod",
+  "description": "Browser extension to copy JSON Schema from Swagger UI for use with Zod v4",
+  "version": "1.1.0",
+  "type": "module",
+  "license": "MIT",
+  "author": "BatuhanTopcu",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BatuhanTopcu/swagger-to-zod"
+  },
+  "keywords": [
+    "swagger",
+    "openapi",
+    "zod",
+    "schema",
+    "browser-extension",
+    "typescript",
+    "json-schema",
+    "api",
+    "validation"
+  ],
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+  },
+  "dependencies": {
+    "json-schema-to-zod": "^2.7.0",
+    "prismjs": "^1.30.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/prismjs": "^1.26.5",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "wxt": "^0.20.6"
+  }
+}
