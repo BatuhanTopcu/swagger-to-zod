@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
@@ -50,13 +53,49 @@ jobs:
         id: pkg
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+      - name: Build release notes from Changesets changelog
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          node <<'EOF'
+          import { existsSync, readFileSync, writeFileSync } from "node:fs";
+
+          const version = process.env.RELEASE_VERSION;
+          const defaultNotes = `Release v${version}\n\nSee CHANGELOG for details.`;
+
+          if (!existsSync("CHANGELOG.md")) {
+            writeFileSync("release-notes.md", defaultNotes);
+            process.exit(0);
+          }
+
+          const changelog = readFileSync("CHANGELOG.md", "utf8");
+          const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const currentRegex = new RegExp(`^##\\s+${escapedVersion}\\b`, "m");
+          const currentMatch = changelog.match(currentRegex);
+
+          if (!currentMatch || currentMatch.index === undefined) {
+            writeFileSync("release-notes.md", defaultNotes);
+            process.exit(0);
+          }
+
+          const start = currentMatch.index;
+          const nextRegex = /^##\s+/gm;
+          nextRegex.lastIndex = start + 1;
+          const nextMatch = nextRegex.exec(changelog);
+          const end = nextMatch ? nextMatch.index : changelog.length;
+          const section = changelog.slice(start, end).trim();
+
+          writeFileSync("release-notes.md", section || defaultNotes);
+          EOF
+        env:
+          RELEASE_VERSION: ${{ steps.pkg.outputs.version }}
+
       - name: Create GitHub Release
         if: steps.changesets.outputs.hasChangesets == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.pkg.outputs.version }}
           name: v${{ steps.pkg.outputs.version }}
-          generate_release_notes: true
+          body_path: release-notes.md
           files: |
             .output/*.zip
         env:
