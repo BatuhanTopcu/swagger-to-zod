@@ -66,10 +66,26 @@ const extractSchemaFromSpec = (element: Element): Record<string, unknown> | null
   const spec = getOpenAPISpec();
   if (!spec) return null;
 
+  const inResponseContext = !!element.closest(".response, .responses-wrapper");
+
+  if (inResponseContext) {
+    try {
+      const responseSchema = findResponseSchemaFromElement(element, spec);
+      if (responseSchema) return responseSchema;
+    } catch {}
+  }
+
   try {
-    const responseSchema = findResponseSchemaFromElement(element, spec);
-    if (responseSchema) return responseSchema;
+    const requestSchema = findRequestBodySchemaFromElement(element, spec);
+    if (requestSchema) return requestSchema;
   } catch {}
+
+  if (!inResponseContext) {
+    try {
+      const responseSchema = findResponseSchemaFromElement(element, spec);
+      if (responseSchema) return responseSchema;
+    } catch {}
+  }
 
   return null;
 };
@@ -189,6 +205,44 @@ const extractSchemaFromOperation = (
   return null;
 };
 
+const extractRequestBodySchemaFromOperation = (
+  operation: Record<string, unknown>,
+  spec: Record<string, unknown>,
+): Record<string, unknown> | null => {
+  const rawRequestBody = operation.requestBody as Record<string, unknown> | undefined;
+  const requestBody = resolveSchemaObjectRef(rawRequestBody, spec);
+
+  if (requestBody) {
+    const content = requestBody.content as Record<string, Record<string, unknown>> | undefined;
+    if (content) {
+      const jsonEntry = Object.entries(content).find(([mediaType]) =>
+        mediaType.toLowerCase().includes("json"),
+      );
+      const jsonContent =
+        jsonEntry?.[1] ||
+        content["application/json"] ||
+        content["*/*"] ||
+        Object.values(content)[0];
+
+      if (jsonContent?.schema) {
+        return resolveRefs(jsonContent.schema as Record<string, unknown>, spec);
+      }
+    }
+  }
+
+  const parameters = operation.parameters as Array<Record<string, unknown>> | undefined;
+  if (!parameters) return null;
+
+  for (const param of parameters) {
+    const resolvedParam = resolveSchemaObjectRef(param, spec);
+    if (resolvedParam?.in === "body" && resolvedParam.schema) {
+      return resolveRefs(resolvedParam.schema as Record<string, unknown>, spec);
+    }
+  }
+
+  return null;
+};
+
 const findResponseSchemaFromElement = (
   element: Element,
   spec: Record<string, unknown>,
@@ -209,6 +263,27 @@ const findResponseSchemaFromElement = (
   if (!operation) return null;
 
   return extractSchemaFromOperation(operation, responseCode, spec);
+};
+
+const findRequestBodySchemaFromElement = (
+  element: Element,
+  spec: Record<string, unknown>,
+): Record<string, unknown> | null => {
+  if (element.closest(".response, .responses-wrapper")) return null;
+
+  const opblock = element.closest(".opblock");
+  if (!opblock) return null;
+
+  const methodAndPath = extractMethodAndPath(opblock);
+  if (!methodAndPath) return null;
+
+  const paths = spec.paths as Record<string, Record<string, unknown>> | undefined;
+  if (!paths) return null;
+
+  const operation = findOperationInSpec(paths, methodAndPath.method, methodAndPath.path);
+  if (!operation) return null;
+
+  return extractRequestBodySchemaFromOperation(operation, spec);
 };
 
 const parseJsonFromElement = (element: Element): unknown | null => {
@@ -433,4 +508,13 @@ const resolveRefPath = (
   return typeof current === "object" && current !== null
     ? (current as Record<string, unknown>)
     : null;
+};
+
+const resolveSchemaObjectRef = (
+  obj: Record<string, unknown> | undefined,
+  spec: Record<string, unknown>,
+): Record<string, unknown> | undefined => {
+  if (!obj) return undefined;
+  if (typeof obj.$ref !== "string") return obj;
+  return resolveRefPath(obj.$ref, spec) || obj;
 };

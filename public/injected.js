@@ -84,9 +84,22 @@
       window.Prism.highlightAll();
     }
     if (window.hljs) {
-      const codeBlocks = document.querySelectorAll(".swagger-zod-code code");
+      const codeBlocks = document.querySelectorAll(".swagger-zod-code code, pre.swagger-zod-code");
       codeBlocks.forEach((block) => {
-        window.hljs.highlightElement(block);
+        try {
+          window.hljs.highlightElement(block);
+        } catch {}
+
+        const tokenized = block.querySelector?.("span") || block.classList?.contains("hljs");
+        if (!tokenized && block.textContent) {
+          try {
+            const highlighted = window.hljs.highlight(block.textContent, {
+              language: "javascript",
+            });
+            block.innerHTML = highlighted.value;
+            block.classList?.add("hljs");
+          } catch {}
+        }
       });
     }
   });

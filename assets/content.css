@@ -170,13 +170,9 @@
   flex-shrink: 0;
 }
 
-/* Zod code block - match Swagger's example styling */
+/* Zod code block - only layout constraints, styling comes from Swagger */
 .swagger-zod-code {
   margin: 0;
-  /* Use Swagger's example styles - padding, background, color are set inline */
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
-  font-size: 12px;
-  line-height: 1.5;
   overflow-x: auto;
   overflow-y: auto;
   min-width: 0;
@@ -187,36 +183,92 @@
   -webkit-overflow-scrolling: touch;
   /* Prevent overflow beyond container */
   position: relative;
-  /* Allow Swagger's microlight syntax highlighting to work */
-  white-space: pre;
-  /* Match height of example block */
   min-height: 100%;
-  flex: 1;
 }
 
 .swagger-zod-code code {
   display: block;
-  color: inherit;
-  background: transparent;
-  padding: 0;
-  border: none;
-  font-family: inherit;
-  font-size: inherit;
   white-space: pre;
-  /* Allow horizontal scroll but prevent overflow */
-  word-wrap: normal;
-  overflow-wrap: normal;
-  /* Prevent code from overflowing container */
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  /* Ensure long lines scroll properly */
   overflow-x: auto;
   overflow-y: visible;
-  /* Ensure code doesn't break container */
-  width: 100%;
-  /* Match Swagger's code styling */
-  line-height: 1.5;
+}
+
+/* Fallback token colors for injected Zod blocks when page lacks hljs theme CSS */
+.swagger-zod-zod-side .swagger-zod-code .hljs {
+  background: transparent;
+  color: inherit;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .hljs-comment,
+.swagger-zod-zod-side .swagger-zod-code .hljs-quote {
+  color: #7f848e;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .hljs-keyword,
+.swagger-zod-zod-side .swagger-zod-code .hljs-selector-tag,
+.swagger-zod-zod-side .swagger-zod-code .hljs-literal,
+.swagger-zod-zod-side .swagger-zod-code .hljs-section,
+.swagger-zod-zod-side .swagger-zod-code .hljs-link {
+  color: #c678dd;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .hljs-string,
+.swagger-zod-zod-side .swagger-zod-code .hljs-title,
+.swagger-zod-zod-side .swagger-zod-code .hljs-name,
+.swagger-zod-zod-side .swagger-zod-code .hljs-type,
+.swagger-zod-zod-side .swagger-zod-code .hljs-attribute,
+.swagger-zod-zod-side .swagger-zod-code .hljs-symbol,
+.swagger-zod-zod-side .swagger-zod-code .hljs-bullet,
+.swagger-zod-zod-side .swagger-zod-code .hljs-addition,
+.swagger-zod-zod-side .swagger-zod-code .hljs-template-tag,
+.swagger-zod-zod-side .swagger-zod-code .hljs-template-variable {
+  color: #98c379;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .hljs-number,
+.swagger-zod-zod-side .swagger-zod-code .hljs-regexp,
+.swagger-zod-zod-side .swagger-zod-code .hljs-meta,
+.swagger-zod-zod-side .swagger-zod-code .hljs-built_in,
+.swagger-zod-zod-side .swagger-zod-code .hljs-builtin-name {
+  color: #d19a66;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .hljs-function,
+.swagger-zod-zod-side .swagger-zod-code .hljs-class,
+.swagger-zod-zod-side .swagger-zod-code .hljs-params {
+  color: #61afef;
+}
+
+/* Fallback token colors when Prism highlights injected Zod code */
+.swagger-zod-zod-side .swagger-zod-code .token.comment,
+.swagger-zod-zod-side .swagger-zod-code .token.prolog,
+.swagger-zod-zod-side .swagger-zod-code .token.doctype,
+.swagger-zod-zod-side .swagger-zod-code .token.cdata {
+  color: #7f848e;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .token.keyword,
+.swagger-zod-zod-side .swagger-zod-code .token.operator {
+  color: #c678dd;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .token.string,
+.swagger-zod-zod-side .swagger-zod-code .token.attr-value {
+  color: #98c379;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .token.number,
+.swagger-zod-zod-side .swagger-zod-code .token.boolean,
+.swagger-zod-zod-side .swagger-zod-code .token.constant {
+  color: #d19a66;
+}
+
+.swagger-zod-zod-side .swagger-zod-code .token.function,
+.swagger-zod-zod-side .swagger-zod-code .token.class-name {
+  color: #61afef;
 }
 
 /* Toast notification */
@@ -269,11 +321,6 @@
   border-color: #4990e2;
 }
 
-.swagger-ui.swagger-ui--dark .swagger-zod-code {
-  background: rgb(51, 51, 51) !important;
-  color: white !important;
-}
-
 /* Alternative dark theme detection */
 @media (prefers-color-scheme: dark) {
   .swagger-ui .swagger-zod-zod-side {
@@ -291,11 +338,6 @@
     border-color: #4990e2;
     color: #fff;
   }
-
-  .swagger-ui .swagger-zod-code {
-    background: rgb(51, 51, 51) !important;
-    color: white !important;
-  }
 }
 
 /* Responsive layout for smaller screens */
@@ -311,20 +353,4 @@
   .swagger-zod-zod-side {
     grid-column: 1;
   }
-}
-
-/* Animation for schema appearance */
-@keyframes swagger-zod-fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.swagger-zod-schema-wrapper {
-  animation: swagger-zod-fade-in 0.3s ease;
 }

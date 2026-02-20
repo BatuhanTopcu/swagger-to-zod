@@ -1,7 +1,9 @@
-import "prismjs/themes/prism-tomorrow.css";
 import "../assets/content.css";
 import { injectCopyButtons, removeCopyButtons } from "../utils/button-injector";
 import { setSpecFromMainWorld } from "../utils/schema-extractor";
+
+const SWAGGER_RELEVANT_SELECTOR =
+  ".opblock, .opblock-body, .response, .responses-wrapper, .body-param, .request-body, .opblock-section-request-body, .model-example, .example-value";
 
 export default defineContentScript({
   matches: ["<all_urls>"],
@@ -13,12 +15,8 @@ export default defineContentScript({
     await injectMainWorldScript();
     requestSpecFromMainWorld();
 
-    setTimeout(async () => {
-      const initialCount = await injectCopyButtons();
-      if (initialCount > 0) {
-        setTimeout(() => injectCopyButtons(), 1000);
-      }
-      setTimeout(() => injectCopyButtons(), 2000);
+    setTimeout(() => {
+      injectCopyButtons();
     }, 500);
 
     let timeout: ReturnType<typeof setTimeout>;
@@ -41,7 +39,8 @@ export default defineContentScript({
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["class", "data-code", "style", "hidden", "aria-hidden"],
+      characterData: true,
+      attributeFilter: ["class", "data-code", "style", "hidden", "aria-hidden", "aria-expanded"],
     });
 
     return () => {
@@ -62,13 +61,18 @@ const isOurInjectedElement = (el: Element): boolean => {
 
 const isSwaggerElement = (el: Element): boolean => {
   return (
-    el.classList?.contains("opblock") ||
-    el.classList?.contains("response") ||
-    el.classList?.contains("model-example") ||
-    el.classList?.contains("example-value") ||
-    el.querySelector?.(".opblock, .response, .model-example, .example-value") !== null ||
-    el.closest?.(".opblock, .response") !== null
+    el.matches?.(SWAGGER_RELEVANT_SELECTOR) ||
+    el.querySelector?.(SWAGGER_RELEVANT_SELECTOR) !== null ||
+    el.closest?.(SWAGGER_RELEVANT_SELECTOR) !== null
   );
+};
+
+const getMutationTargetElement = (mutation: MutationRecord): Element | null => {
+  if (mutation.target.nodeType === Node.ELEMENT_NODE) {
+    return mutation.target as Element;
+  }
+
+  return mutation.target.parentElement;
 };
 
 const isRelevantSwaggerChange = (mutations: MutationRecord[]): boolean => {
@@ -83,25 +87,16 @@ const isRelevantSwaggerChange = (mutations: MutationRecord[]): boolean => {
     }
 
     if (mutation.type === "attributes") {
-      const target = mutation.target as Element;
-      if (
-        target.classList?.contains("opblock") ||
-        target.classList?.contains("response") ||
-        target.closest?.(".opblock, .response") !== null
-      ) {
+      const target = getMutationTargetElement(mutation);
+      if (target && isSwaggerElement(target)) {
         return true;
       }
     }
   }
 
   for (const mutation of mutations) {
-    const target = mutation.target as Element;
-    if (
-      target &&
-      (target.classList?.contains("opblock") ||
-        target.classList?.contains("response") ||
-        target.closest?.(".opblock, .response") !== null)
-    ) {
+    const target = getMutationTargetElement(mutation);
+    if (target && isSwaggerElement(target)) {
       return true;
     }
   }
@@ -120,13 +115,9 @@ const areOnlyOurMutations = (mutations: MutationRecord[]): boolean => {
       }
     }
 
-    if (mutation.type === "attributes") {
-      const target = mutation.target as Element;
-      if (
-        target.classList?.contains("opblock") ||
-        target.classList?.contains("response") ||
-        target.closest?.(".opblock, .response") !== null
-      ) {
+    if (mutation.type === "attributes" || mutation.type === "characterData") {
+      const target = getMutationTargetElement(mutation);
+      if (target && isSwaggerElement(target)) {
         return false;
       }
     }
@@ -150,14 +141,7 @@ const createMutationHandler = (
       setTimeout(async () => {
         setIsInjecting(true);
         try {
-          const injectedCount = await injectCopyButtons();
-          if (injectedCount > 0) {
-            setTimeout(() => {
-              try {
-                injectCopyButtons();
-              } catch {}
-            }, 500);
-          }
+          await injectCopyButtons();
         } finally {
           setTimeout(() => {
             setIsInjecting(false);
@@ -177,7 +161,7 @@ const isSwaggerUIPage = (): boolean => {
 };
 
 const injectMainWorldScript = async () => {
-  const scriptUrl = browser.runtime.getURL("injected.js");
+  const scriptUrl = browser.runtime.getURL("/injected.js");
   const script = document.createElement("script");
   script.src = scriptUrl;
 
