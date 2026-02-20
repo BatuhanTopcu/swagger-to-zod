@@ -1,7 +1,7 @@
 {
   "name": "swagger-to-zod",
   "description": "Browser extension to copy JSON Schema from Swagger UI for use with Zod v4",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "license": "MIT",
   "author": "BatuhanTopcu",
